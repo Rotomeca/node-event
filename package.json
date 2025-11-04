@@ -1,8 +1,8 @@
 {
   "name": "@rotomeca/event",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Add event system",
-  "main": "JsEvent.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Rotomeca/node-event.git"

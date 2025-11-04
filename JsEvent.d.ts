@@ -1,5 +1,4 @@
 export = JsEvent;
-declare module "@rotomeca/event";
 declare type OnCallbackAddedCallback<TCallback extends Function> = (
   key: string,
   callbackAdded: TCallback,
