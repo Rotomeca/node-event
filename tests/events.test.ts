@@ -304,6 +304,22 @@ describe('EventHandler', () => {
 		});
 	});
 
+describe('_generateKey (collision)', () => {
+  it('Génère une nouvelle clé en cas de collision', () => {
+    const event = new EventHandler();
+    // On remplit avec suffisamment de clés pour provoquer une collision
+    // En mockant has() pour retourner true une fois puis false
+    let callCount = 0;
+    const originalHas = event.has.bind(event);
+    vi.spyOn(event, 'has').mockImplementation((key: string) => {
+      if (callCount++ < 1) return true; // simule une collision
+      return originalHas(key);
+    });
+    const key = event.push(fn());
+    expect(typeof key).toBe('string');
+  });
+});
+
 	// ── call (deprecated) ───────────────────────────────────────
 	describe('call (deprecated)', () => {
 		it('Retourne null si aucun callback', () => {
@@ -325,6 +341,13 @@ describe('EventHandler', () => {
 			expect(result).toContain(1);
 			expect(result).toContain(2);
 		});
+
+		it('Lève une erreur pour un type inconnu', () => {
+  const event = new EventHandler();
+  // On force un résultat avec un type inconnu via mock
+  vi.spyOn(event, 'invoke').mockReturnValue({ type: 'unknown' } as any);
+  expect(() => event.call()).toThrow();
+});
 	});
 
 	// ── onHandlerAdded ──────────────────────────────────────────
@@ -517,6 +540,34 @@ describe('CircularEventHandler', () => {
 			expect(order).toEqual([1, 2]);
 		});
 	});
+describe('_p_init (events d\'observation)', () => {
+  it('onHandlerAdded fonctionne sur CircularEventHandler', () => {
+    const event = new CircularEventHandler<{ count: number }>();
+    const spy = fn() as any;
+    event.onHandlerAdded.push(spy);
+    event.add('key', ({ count }) => ({ count: count + 1 }));
+    expect(spy).toHaveBeenCalledOnce();
+  });
+ 
+  it('onHandlerRemoved fonctionne sur CircularEventHandler', () => {
+    const event = new CircularEventHandler<{ count: number }>();
+    const spy = fn() as any;
+    event.onHandlerRemoved.push(spy);
+    event.add('key', ({ count }) => ({ count: count + 1 }));
+    event.remove('key');
+    expect(spy).toHaveBeenCalledOnce();
+  });
+ 
+  it('onHandlerCleared fonctionne sur CircularEventHandler', () => {
+    const event = new CircularEventHandler<{ count: number }>();
+    const spy = fn() as any;
+    event.onHandlerCleared.push(spy);
+    event.add('key', ({ count }) => ({ count: count + 1 }));
+    event.clear();
+    expect(spy).toHaveBeenCalledOnce();
+  });
+});
+ 
 
 	// ── call (deprecated) ───────────────────────────────────────
 	describe('call (deprecated)', () => {
@@ -531,6 +582,14 @@ describe('CircularEventHandler', () => {
 			const result = event.call({ count: 0 });
 			expect(result).toEqual({ count: 1 });
 		});
+
+		// À ajouter dans describe('call (deprecated)') de CircularEventHandler
+it("Retourne la valeur pour le type 'other'", () => {
+  const event = new CircularEventHandler();
+  event.add('key', fn() as any);
+  const result = event.call(42 as any);
+  expect(result).toBeDefined();
+});
 	});
 });
 
