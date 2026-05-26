@@ -1,4 +1,4 @@
-import { Func, MayBe, Nullable } from '@rotomeca/utils';
+import { Action, Func, MayBe, Nullable } from '@rotomeca/utils';
 
 /**
  * Représente le résultat d'un appel à un événement.
@@ -60,7 +60,7 @@ export type EventCallResult<T extends Func> =
  */
 export type HandlerAddedCallback<
 	TArgs extends any[] = any[],
-	T extends Func<TArgs> = Func<TArgs>,
+	T extends Func<TArgs> = Action<TArgs>,
 > = (key: string, callbackAdded: T) => void;
 
 /**

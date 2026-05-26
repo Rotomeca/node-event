@@ -20,7 +20,8 @@ import { IEventData } from './interfaces/IEventData';
  */
 export class EventData<
 	TArgs extends any[] = any[],
-	T extends Func<TArgs> = Func<TArgs>,
+	TResult extends any = any,
+	T extends Func<TArgs, TResult> = Func<TArgs, TResult>,
 > implements IEventData<TArgs, T> {
 	/**
 	 * Le callback à exécuter lors du déclenchement de l'événement.

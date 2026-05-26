@@ -126,37 +126,11 @@ export interface IEventHandler<
 	 * [`+=`](https://learn.microsoft.com/fr-fr/dotnet/csharp/programming-guide/events/how-to-subscribe-to-and-unsubscribe-from-events)
 	 * en C#.
 	 *
-	 * @param eventData - Les données du callback à ajouter.
-	 * @returns La clé générée permettant de retrouver ce callback plus tard.
-	 */
-	push(eventData: IEventData<TArgs, T>): string;
-
-	/**
-	 * Ajoute un callback en générant automatiquement une clé unique.
-	 *
-	 * Équivalent de l'opérateur
-	 * [`+=`](https://learn.microsoft.com/fr-fr/dotnet/csharp/programming-guide/events/how-to-subscribe-to-and-unsubscribe-from-events)
-	 * en C#.
-	 *
 	 * @param event - Le callback à ajouter.
 	 * @param args - Arguments par défaut transmis au callback à chaque appel.
 	 * @returns La clé générée permettant de retrouver ce callback plus tard.
 	 */
-	push(event: T, ...args: TArgs): string;
-
-	/**
-	 * Ajoute un callback avec une clé spécifique.
-	 *
-	 * Équivalent de l'opérateur
-	 * [`+=`](https://learn.microsoft.com/fr-fr/dotnet/csharp/programming-guide/events/how-to-subscribe-to-and-unsubscribe-from-events)
-	 * en C#, avec contrôle explicite de l'identifiant.
-	 *
-	 * @param key - Clé identifiant le callback, permettant de le retrouver
-	 *              ou de le supprimer ultérieurement.
-	 * @param eventData - Les données du callback à ajouter.
-	 * @returns L'instance courante pour permettre le chaînage.
-	 */
-	add(key: string, eventData: IEventData<TArgs, T>): this;
+	push(event: T, ...args: Partial<TArgs>): string;
 
 	/**
 	 * Ajoute un callback avec une clé spécifique.
@@ -170,7 +144,7 @@ export interface IEventHandler<
 	 * @param args - Arguments par défaut transmis au callback à chaque appel.
 	 * @returns L'instance courante pour permettre le chaînage.
 	 */
-	add(key: string, event: T, ...args: TArgs): this;
+	add(key: string, event: T, ...args: Partial<TArgs>): this;
 
 	/**
 	 * Vérifie si un callback est enregistré sous la clé donnée.

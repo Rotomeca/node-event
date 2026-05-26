@@ -4,6 +4,7 @@
 		"module": "ESNext", // Génère des imports/exports modernes
 		"moduleResolution": "node",
 		"ignoreDeprecations": "6.0",
+		"useDefineForClassFields": false,
 		"outDir": "./dist/esm" // Sortie séparée
 	}
 }

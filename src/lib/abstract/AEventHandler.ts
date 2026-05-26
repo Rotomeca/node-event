@@ -163,42 +163,16 @@ export abstract class AEventHandler<
 	/**
 	 * Ajoute un callback en générant automatiquement une clé unique.
 	 *
-	 * @param eventData - Les données du callback à ajouter.
-	 * @returns La clé générée.
-	 */
-	push(eventData: IEventData<TArgs, T>): string;
-
-	/**
-	 * Ajoute un callback en générant automatiquement une clé unique.
-	 *
 	 * @param event - Le callback à ajouter.
 	 * @param args - Arguments par défaut transmis au callback à chaque appel.
 	 * @returns La clé générée.
 	 */
-	push(event: T, ...args: TArgs): string;
-
-	/** @internal */
-	push(eventData: T | IEventData<TArgs, T>, ...rest: unknown[]): string {
-		if (typeof eventData === 'function')
-			return this.push(
-				new EventData<TArgs, T>(eventData as T, ...(rest as TArgs)),
-			);
-
+	push(event: T, ...args: Partial<TArgs>): string{
 		const key = this.#_generateKey();
-		this.add(key, eventData as IEventData<TArgs, T>);
+		this.add(key, event, ...args);
 
 		return key;
 	}
-
-	/**
-	 * Ajoute un callback avec une clé spécifique.
-	 *
-	 * @param key - Clé identifiant le callback.
-	 * @param eventData - Les données du callback à ajouter.
-	 * @returns L'instance courante pour permettre le chaînage.
-	 */
-	add(key: string, eventData: IEventData<TArgs, T>): this;
-
 	/**
 	 * Ajoute un callback avec une clé spécifique.
 	 *
@@ -207,26 +181,13 @@ export abstract class AEventHandler<
 	 * @param args - Arguments par défaut transmis au callback à chaque appel.
 	 * @returns L'instance courante pour permettre le chaînage.
 	 */
-	add(key: string, event: T, ...args: TArgs): this;
-
-	/** @internal */
-	add(
-		key: string,
-		eventData: T | IEventData<TArgs, T>,
-		...rest: unknown[]
-	): this {
-		if (typeof eventData === 'function')
-			return this.add(
-				key,
-				new EventData<TArgs, T>(eventData as T, ...(rest as TArgs)),
-			);
-
-		this.#_callbacks.set(key, eventData as IEventData<TArgs, T>);
+	add(key: string, event: T, ...args: Partial<TArgs>): this {
+		this.#_callbacks.set(key, new EventData(event, ...(args as unknown as TArgs)));
 
 		if (isDefined(this.#_handlerAdded) && this.onHandlerAdded.haveEvents())
 			this.onHandlerAdded.invoke(
 				key,
-				(eventData as IEventData<TArgs, T>).callback,
+				event,
 			);
 
 		return this;
