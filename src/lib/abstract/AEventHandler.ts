@@ -338,6 +338,24 @@ export abstract class AEventHandler<
 	>;
 
 	/**
+	 * Retourne les données associées à la clé donnée, ou `null` si la clé
+	 * n'existe pas.
+	 *
+	 * Point d'accès protégé au dictionnaire interne — permet aux classes
+	 * concrètes d'accéder aux données d'un callback sans exposer
+	 * `#_callbacks` directement.
+	 *
+	 * @param key - La clé du callback à récupérer.
+	 * @returns Les données du callback, ou `null` si la clé est absente.
+	 * @protected
+	 */
+	protected _p_get(key: string): MayBe<IEventData<TArgs, T>> {
+		if (this.has(key)) return this.#_callbacks.get(key);
+
+		return null;
+	}
+
+	/**
 	 * Supprime tous les callbacks enregistrés en une seule opération O(1).
 	 *
 	 * Capture la liste des callbacks **avant** l'effacement, puis déclenche
