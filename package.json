@@ -18,5 +18,9 @@
   "homepage": "https://github.com/Rotomeca/node-event#readme",
   "dependencies": {
     "@rotomeca/utils": "^7.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.0",
+    "prettier": "3.8.3"
   }
 }
