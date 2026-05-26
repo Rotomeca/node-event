@@ -1,8 +1,6 @@
-import JsCircularEvent from "./JsCicrularEvent";
-import JsEvent from "./JsEvent";
+import JsEvent from './JsEvent';
+import JsCircularEvent from './JsCircularEvent'
 
-export = JsEvent;
+export default JsEvent;
 
-declare namespace JsEvent {
-    export {JsCircularEvent};
-}
+export { JsCircularEvent };
