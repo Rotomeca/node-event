@@ -1,4 +1,4 @@
-import { Func, MayBe } from '@rotomeca/utils';
+import { Func, MayBe, Nullable } from '@rotomeca/utils';
 
 /**
  * Représente le résultat d'un appel à un événement.
@@ -126,3 +126,49 @@ export type HandlerClearedCallback<
 	TArgs extends any[] = any[],
 	T extends Func<TArgs> = Func<TArgs>,
 > = (callbacksCleared: T[]) => void;
+
+/**
+ * Représente le résultat d'un appel à un {@link CircularEventHandler}.
+ *
+ * Ce type discriminé permet de distinguer sans ambiguïté les trois cas
+ * possibles lors de la propagation circulaire, même si `TRecord` contient
+ * des propriétés dont la valeur est un objet imbriqué.
+ *
+ * @typeParam TRecord - Type du record propagé entre les callbacks,
+ *                      doit étendre `Record<string, unknown>`.
+ *
+ * @example
+ * ```ts
+ * const result = pipeline.invoke({ count: 0, label: '' });
+ *
+ * switch (result.type) {
+ *   case 'empty':
+ *     // Aucun callback enregistré — le record n'a pas été traité
+ *     break;
+ *   case 'record':
+ *     console.log(result.value); // TRecord fusionné après tous les callbacks
+ *     break;
+ *   case 'other':
+ *     console.warn('Valeur inattendue :', result.originalValue);
+ *     console.log(result.value); // TRecord ou null — résultat du fallback
+ *     break;
+ * }
+ * ```
+ *
+ * @see {@link CircularEventHandler.invoke}
+ * @see {@link EventCallResult} pour le type équivalent sur {@link EventHandler}
+ */
+export type CircularEventCallResult<TRecord extends Record<string, unknown>> =
+	/** Aucun callback enregistré — la propagation n'a pas eu lieu. */
+	| { type: 'empty' }
+	/**
+	 * Propagation normale — `value` contient le record final fusionné
+	 * après le passage de tous les callbacks.
+	 */
+	| { type: 'record'; value: TRecord }
+	/**
+	 * La valeur initiale n'était pas un plain object — elle a été encapsulée
+	 * dans `{ default: originalValue }` pour permettre quand même la propagation.
+	 * `value` contient le résultat du fallback, `originalValue` la valeur d'origine.
+	 */
+	| { type: 'other'; value: Nullable<TRecord>; originalValue: unknown };

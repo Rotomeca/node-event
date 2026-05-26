@@ -35,6 +35,7 @@ import {
 export interface IEventHandler<
 	TArgs extends any[] = any[],
 	T extends Func<TArgs> = Func<TArgs>,
+	TResult = EventCallResult<T>,
 > {
 	/**
 	 * Événement déclenché chaque fois qu'un handler est ajouté
@@ -243,7 +244,7 @@ export interface IEventHandler<
 	 *
 	 * @see {@link https://learn.microsoft.com/fr-fr/dotnet/api/system.delegate.invoke | Delegate.Invoke — C#}
 	 */
-	invoke(...args: TArgs): EventCallResult<T>;
+	invoke(...args: TArgs): TResult;
 
 	/**
 	 * Supprime tous les callbacks enregistrés.

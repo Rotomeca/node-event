@@ -40,7 +40,8 @@ import { EventData } from '../EventData';
 export abstract class AEventHandler<
 	TArgs extends any[] = any[],
 	T extends Func<TArgs> = Func<TArgs>,
-> implements IEventHandler<TArgs, T> {
+	TResult = EventCallResult<T>,
+> implements IEventHandler<TArgs, T, TResult> {
 	/** Dictionnaire interne des callbacks indexés par clé. */
 	#_callbacks = new Map<string, IEventData<TArgs, T>>();
 
@@ -288,10 +289,10 @@ export abstract class AEventHandler<
 	 * Déclenche tous les callbacks enregistrés avec les arguments fournis.
 	 *
 	 * @param args - Arguments transmis à chaque callback lors de l'appel.
-	 * @returns Un {@link EventCallResult} décrivant le résultat de l'appel.
+	 * @returns Un {@link TResult} décrivant le résultat de l'appel.
 	 * @abstract
 	 */
-	abstract invoke(...args: TArgs): EventCallResult<T>;
+	abstract invoke(...args: TArgs): TResult;
 
 	/**
 	 * Initialise l'instance de {@link onHandlerAdded}.
