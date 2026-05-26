@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Rotomeca/node-event/issues"
   },
-  "homepage": "https://github.com/Rotomeca/node-event#readme"
+  "homepage": "https://github.com/Rotomeca/node-event#readme",
+  "dependencies": {
+    "@rotomeca/utils": "^7.0.3"
+  }
 }
