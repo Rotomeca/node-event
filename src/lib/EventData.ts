@@ -12,7 +12,7 @@ import { IEventData } from './interfaces/IEventData';
  * @example
  * ```ts
  * const data = new EventData((msg: string) => console.log(msg), 'bonjour');
- * const event = new JsEventHandler();
+ * const event = new EventHandler();
  * event.push(data);
  * ```
  *

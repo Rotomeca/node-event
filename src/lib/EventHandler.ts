@@ -26,7 +26,7 @@ import { IEventHandler } from './interfaces/IEvent';
  *
  * @example
  * ```ts
- * const onClick = new JsEventHandler<[MouseEvent]>();
+ * const onClick = new EventHandler<[MouseEvent]>();
  *
  * onClick.add('logger', (e) => console.log(e.clientX));
  * onClick.add('tracker', (e) => analytics.track(e));
@@ -36,7 +36,7 @@ import { IEventHandler } from './interfaces/IEvent';
  *
  * @see {@link https://learn.microsoft.com/fr-fr/dotnet/api/system.eventhandler-1 | EventHandler\<TEventArgs\> — C#}
  */
-export class JsEventHandler<
+export class EventHandler<
 	TArgs extends any[] = any[],
 	T extends Func<TArgs> = Func<TArgs>,
 > extends AEventHandler<TArgs, T> {
@@ -137,44 +137,44 @@ export class JsEventHandler<
 
 	/**
 	 * Initialise l'instance de {@link onHandlerAdded}.
-	 * @returns Une nouvelle instance de {@link JsEventHandler}.
+	 * @returns Une nouvelle instance de {@link EventHandler}.
 	 * @protected
 	 */
 	protected _p_initOnHandlerAdded(): IEventHandler<
 		Parameters<HandlerAddedCallback<TArgs, T>>,
 		HandlerAddedCallback<TArgs, T>
 	> {
-		return new JsEventHandler();
+		return new EventHandler();
 	}
 
 	/**
 	 * Initialise l'instance de {@link onHandlerRemoved}.
-	 * @returns Une nouvelle instance de {@link JsEventHandler}.
+	 * @returns Une nouvelle instance de {@link EventHandler}.
 	 * @protected
 	 */
 	protected _p_initOnHandlerRemoved(): IEventHandler<
 		Parameters<HandlerRemovedCallback<TArgs, T>>,
 		HandlerRemovedCallback<TArgs, T>
 	> {
-		return new JsEventHandler();
+		return new EventHandler();
 	}
 
 	/**
 	 * Initialise l'instance de {@link onHandlerCleared}.
-	 * @returns Une nouvelle instance de {@link JsEventHandler}.
+	 * @returns Une nouvelle instance de {@link EventHandler}.
 	 * @protected
 	 */
 	protected _p_initOnHandlerCleared(): IEventHandler<
 		Parameters<HandlerClearedCallback<TArgs, T>>,
 		HandlerClearedCallback<TArgs, T>
 	> {
-		return new JsEventHandler();
+		return new EventHandler();
 	}
 }
 
 /**
- * Alias de {@link JsEventHandler} conservé pour la compatibilité ascendante.
+ * Alias de {@link EventHandler} conservé pour la compatibilité ascendante.
  *
- * @deprecated Utilisez {@link JsEventHandler} à la place.
+ * @deprecated Utilisez {@link EventHandler} à la place.
  */
-export const JsEvent = JsEventHandler;
+export const JsEvent = EventHandler;
