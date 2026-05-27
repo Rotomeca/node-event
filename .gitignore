@@ -1,0 +1,7 @@
+node_modules
+.vscode
+dist
+coverage
+docs
+pnpm-workspace.yaml
+.npmrc

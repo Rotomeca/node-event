@@ -1,19 +1,62 @@
 {
-  "name": "@rotomeca/event",
-  "version": "3.0.3",
-  "description": "Add event system",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rotomeca/node-event.git"
-  },
-  "keywords": [
-    "event"
-  ],
-  "author": "Rotomeca",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Rotomeca/node-event/issues"
-  },
-  "homepage": "https://github.com/Rotomeca/node-event#readme"
+	"name": "@rotomeca/event",
+	"version": "4.0.0",
+	"description": "Add event system",
+	"type": "module",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/esm/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/esm/index.d.ts",
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		},
+		"./bundle": "./dist/bundle/rotomeca-event.min.js"
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Rotomeca/node-event.git"
+	},
+	"scripts": {
+		"prebuild": "rimraf dist",
+		"build": "pnpm run test:all && pnpm run build:esm && pnpm run build:cjs",
+		"build:all": "pnpm run build && pnpm run bundle",
+		"build:esm": "tsc -p tsconfig.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({type:'module'}, null, 2))\"",
+		"build:cjs": "tsc -p tsconfig.cjs.json && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({type:'commonjs'}, null, 2))\"",
+		"bundle": "node build-bundle.js",
+		"test": "vitest run",
+		"test:watch": "vitest --reporter=verbose",
+		"test:coverage": "vitest run --coverage",
+		"test:all": "pnpm run test && pnpm run test:coverage",
+		"docs": "typedoc"
+	},
+	"keywords": [
+		"event"
+	],
+	"author": "Rotomeca",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Rotomeca/node-event/issues"
+	},
+	"homepage": "https://github.com/Rotomeca/node-event#readme",
+	"dependencies": {
+		"@rotomeca/utils": "^7.0.3"
+	},
+	"devDependencies": {
+		"@vitest/coverage-v8": "^4.1.7",
+		"dts-bundle-generator": "^9.5.1",
+		"esbuild": "^0.28.0",
+		"eslint": "^10.4.0",
+		"prettier": "3.8.3",
+		"rimraf": "^6.1.3",
+		"typedoc": "^0.28.19",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.7"
+	},
+	"sideEffects": false
 }

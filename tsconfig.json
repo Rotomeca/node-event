@@ -1,0 +1,11 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"module": "ESNext", // Génère des imports/exports modernes
+		"moduleResolution": "node",
+		"ignoreDeprecations": "6.0",
+		"useDefineForClassFields": false,
+		"outDir": "./dist/esm"
+	},
+	"exclude": ["node_modules", "**/*.test.ts", "src/lib/documentation"]
+}
