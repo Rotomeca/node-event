@@ -5,14 +5,14 @@ import {
 	isPlainObject,
 	MayBe,
 } from '@rotomeca/utils';
-import { AEventHandler } from '../abstract';
+import { AEventHandler } from '../abstract/AEventHandler';
 import {
 	CircularEventCallResult,
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../utils';
-import { IEventHandler } from '../interfaces';
+} from '../utils/types';
+import { IEventHandler } from '../interfaces/IEventHandler';
 import { EventHandler } from './EventHandler';
 
 /**
@@ -57,8 +57,19 @@ export class CircularEventHandler<
 		Partial<TRecord>
 	>,
 > extends AEventHandler<[TRecord], T, CircularEventCallResult<TRecord>> {
-	constructor() {
+	#_logger: (...args: any[]) => void;
+
+	/**
+	 *
+	 * @param warnLogger Logger si un problème survient dans le {@link invoke}.
+	 */
+	constructor(
+		warnLogger: (...args: any[]) => void = (...args: any[]) => {
+			console.warn(...args);
+		},
+	) {
 		super();
+		this.#_logger = warnLogger || console.warn;
 	}
 
 	/**
@@ -77,8 +88,6 @@ export class CircularEventHandler<
 	 * est exécutée normalement. Le résultat est alors de type `'other'`.
 	 *
 	 * @param args_0 - Le record initial transmis au premier callback.
-	 * @param logger - Fonction de log appelée en cas de valeur non-record.
-	 *                 Par défaut `console.warn`.
 	 * @returns Un {@link CircularEventCallResult} décrivant le résultat :
 	 * - `{ type: 'empty' }` si aucun callback n'est enregistré.
 	 * - `{ type: 'record', value }` si la chaîne s'est exécutée normalement.
@@ -94,16 +103,11 @@ export class CircularEventHandler<
 	 * }
 	 * ```
 	 */
-	invoke(
-		args_0: TRecord,
-		logger = (...args: any[]) => {
-			console.warn(...args);
-		},
-	): CircularEventCallResult<TRecord> {
+	invoke(args_0: TRecord): CircularEventCallResult<TRecord> {
 		if (!this.haveEvents()) return { type: 'empty' };
 
 		if (!isPlainObject(args_0)) {
-			logger(
+			this.#_logger(
 				'Attention !',
 				args_0,
 				"n'est pas un objet ! Cela peut provoquer des effets inattendu !",

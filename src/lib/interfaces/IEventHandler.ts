@@ -4,7 +4,7 @@ import {
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../utils';
+} from '../utils/types';
 
 /**
  * Représente un gestionnaire d'événement typé auquel on peut attacher,
