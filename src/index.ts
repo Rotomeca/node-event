@@ -5,4 +5,4 @@ export * from './lib/abstract/AEventHandler';
 export * from './lib/classes/EventData';
 export * from './lib/classes/EventHandler';
 export * from './lib/classes/CircularEventHandler';
-export * from './lib/decorators/listener';
+// export * from './lib/decorators/listener';
