@@ -24,13 +24,15 @@
 	},
 	"scripts": {
 		"prebuild": "rimraf dist",
-		"build": "pnpm run build:esm && pnpm run build:cjs",
+		"build": "pnpm run test:all && pnpm run build:esm && pnpm run build:cjs",
+		"build:all": "pnpm run build && pnpm run bundle",
 		"build:esm": "tsc -p tsconfig.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({type:'module'}, null, 2))\"",
 		"build:cjs": "tsc -p tsconfig.cjs.json && node -e \"require('fs').writeFileSync('dist/cjs/package.json', JSON.stringify({type:'commonjs'}, null, 2))\"",
 		"bundle": "node build-bundle.js",
 		"test": "vitest run",
 		"test:watch": "vitest --reporter=verbose",
 		"test:coverage": "vitest run --coverage",
+		"test:all": "pnpm run test && pnpm run test:coverage",
 		"docs": "typedoc"
 	},
 	"keywords": [
