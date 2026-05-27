@@ -4,5 +4,7 @@ export type * from './lib/interfaces/IEventData';
 export * from './lib/abstract/AEventHandler';
 export * from './lib/classes/EventData';
 export * from './lib/classes/EventHandler';
+export * from './lib/classes/deprecated/JsEvent';
+export * from './lib/classes/deprecated/JsCircularEvent';
 export * from './lib/classes/CircularEventHandler';
 // export * from './lib/decorators/listener';

@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { EventData } from '../src/lib/classes/EventData';
 import { EventHandler } from '../src/lib/classes/EventHandler';
 import { CircularEventHandler } from '../src/lib/classes/CircularEventHandler';
+import { JsCircularEvent } from '../src/lib/classes/deprecated/JsCircularEvent';
+import { JsEvent } from '../src/lib/classes/deprecated/JsEvent';
 
 const fn = () => vi.fn() as unknown as () => void;
 
@@ -588,6 +590,283 @@ describe('CircularEventHandler', () => {
 			event.add('key', fn() as any);
 			const result = event.call(42 as any);
 			expect(result).toBeDefined();
+		});
+	});
+});
+
+// ── JsEvent ──────────────────────────────────────────────────
+describe('JsEvent', () => {
+	// ── invoke ────────────────────────────────────────────────
+	describe('invoke', () => {
+		it('Retourne { type: "empty" } si aucun callback', () => {
+			const event = new JsEvent();
+			expect(event.invoke()).toEqual({ type: 'empty' });
+		});
+
+		it('Retourne { type: "single", value } si un seul callback', () => {
+			const event = new JsEvent<() => number>();
+			event.add('key', () => 42);
+			const result = event.invoke();
+			expect(result.type).toBe('single');
+			if (result.type === 'single') expect(result.value).toBe(42);
+		});
+
+		it('Retourne { type: "multiple", values } si plusieurs callbacks', () => {
+			const event = new JsEvent<() => number>();
+			event.add('a', () => 1);
+			event.add('b', () => 2);
+			const result = event.invoke();
+			expect(result.type).toBe('multiple');
+			if (result.type === 'multiple') {
+				expect(Object.values(result.values)).toContain(1);
+				expect(Object.values(result.values)).toContain(2);
+			}
+		});
+
+		it('Transmet les arguments aux callbacks', () => {
+			const cb = vi.fn((x: number) => x * 2);
+			const event = new JsEvent<(x: number) => number>();
+			event.add('key', cb);
+			event.invoke(5);
+			expect(cb).toHaveBeenCalledWith(5);
+		});
+
+		it("Appelle les callbacks dans l'ordre d'enregistrement", () => {
+			const order: number[] = [];
+			const event = new JsEvent();
+			event.add('a', () => order.push(1));
+			event.add('b', () => order.push(2));
+			event.add('c', () => order.push(3));
+			event.invoke();
+			expect(order).toEqual([1, 2, 3]);
+		});
+
+		it('Préserve les clés dans values pour multiple', () => {
+			const event = new JsEvent<() => number>();
+			event.add('premier', () => 1);
+			event.add('second', () => 2);
+			const result = event.invoke();
+			if (result.type === 'multiple') {
+				expect(result.values['premier']).toBe(1);
+				expect(result.values['second']).toBe(2);
+			}
+		});
+
+		it("N'altère pas les callbacks enregistrés après l'invocation", () => {
+			const event = new JsEvent();
+			event.add('key', fn());
+			event.invoke();
+			// le délégué éphémère est clear() après invoke — les callbacks originaux restent
+			expect(event.count()).toBe(1);
+		});
+
+		it("Un callback ajouté pendant l'invocation n'est pas appelé dans la même passe", () => {
+			const event = new JsEvent();
+			const lateCall = vi.fn();
+			event.add('a', () => {
+				event.add('late', lateCall);
+			});
+			event.invoke();
+			expect(lateCall).not.toHaveBeenCalled();
+		});
+	});
+
+	// ── call (deprecated) ──────────────────────────────────────
+	describe('call (deprecated)', () => {
+		it('Retourne null si aucun callback', () => {
+			expect(new JsEvent().call()).toBeNull();
+		});
+
+		it('Retourne la valeur directe si un seul callback', () => {
+			const event = new JsEvent<() => number>();
+			event.add('key', () => 42);
+			expect(event.call()).toBe(42);
+		});
+
+		it('Retourne un tableau si plusieurs callbacks', () => {
+			const event = new JsEvent<() => number>();
+			event.add('a', () => 1);
+			event.add('b', () => 2);
+			const result = event.call();
+			expect(Array.isArray(result)).toBe(true);
+			expect(result).toContain(1);
+			expect(result).toContain(2);
+		});
+	});
+
+	// ── événements d'observation ───────────────────────────────
+	describe("événements d'observation", () => {
+		it("onHandlerAdded se déclenche lors d'un add", () => {
+			const event = new JsEvent();
+			const spy = vi.fn();
+			event.onHandlerAdded.push(spy);
+			event.add('key', fn());
+			expect(spy).toHaveBeenCalledOnce();
+		});
+
+		it("onHandlerRemoved se déclenche lors d'un remove", () => {
+			const event = new JsEvent();
+			const spy = vi.fn();
+			event.onHandlerRemoved.push(spy);
+			event.add('key', fn());
+			event.remove('key');
+			expect(spy).toHaveBeenCalledOnce();
+		});
+
+		it("onHandlerCleared se déclenche lors d'un clear", () => {
+			const event = new JsEvent();
+			const spy = vi.fn();
+			event.onHandlerCleared.push(spy);
+			event.add('key', fn());
+			event.clear();
+			expect(spy).toHaveBeenCalledOnce();
+		});
+	});
+});
+
+// ── JsCircularEvent ───────────────────────────────────────────
+describe('JsCircularEvent', () => {
+	// ── invoke ────────────────────────────────────────────────
+	describe('invoke', () => {
+		it('Retourne { type: "empty" } si aucun callback', () => {
+			const event = new JsCircularEvent<
+				(p: { count: number }) => { count: number }
+			>();
+			expect(event.invoke({ count: 0 })).toEqual({ type: 'empty' });
+		});
+
+		it('Propage et merge le record entre les callbacks', () => {
+			const event = new JsCircularEvent<
+				(p: { count: number }) => { count: number }
+			>();
+			event.add('double', ({ count }) => ({ count: count * 2 }));
+			event.add('add10', ({ count }) => ({ count: count + 10 }));
+			const result = event.invoke({ count: 5 });
+			expect(result.type).toBe('record');
+			if (result.type === 'record') expect(result.value.count).toBe(20);
+		});
+
+		it("Remplace silencieusement args[0] par {} si ce n'est pas un plain object", () => {
+			const event = new JsCircularEvent();
+			event.add('key', r => ({ ...r, touched: true }));
+			const result = event.invoke('not-a-record' as any);
+			// contrairement à CircularEventHandler, pas de type 'other'
+			expect(result.type).toBe('record');
+		});
+
+		it('Ne retourne jamais { type: "other" } contrairement à CircularEventHandler', () => {
+			const event = new JsCircularEvent();
+			event.add('key', fn() as any);
+			const result = event.invoke(42 as any);
+			expect(result.type).not.toBe('other');
+		});
+
+		it('Utilise {} comme record initial si args[0] est undefined', () => {
+			const event = new JsCircularEvent();
+			event.add('key', r => ({ ...r, touched: true }));
+			const result = event.invoke(undefined as any);
+			expect(result.type).toBe('record');
+			if (result.type === 'record') expect(result.value.touched).toBe(true);
+		});
+
+		it('Ne mute pas le record original', () => {
+			const event = new JsCircularEvent<
+				(p: { count: number }) => { count: number }
+			>();
+			event.add('inc', ({ count }) => ({ count: count + 1 }));
+			const original = { count: 0 };
+			event.invoke(original);
+			expect(original.count).toBe(0);
+		});
+
+		it("N'altère pas les callbacks enregistrés après l'invocation", () => {
+			const event = new JsCircularEvent();
+			event.add('key', r => r);
+			event.invoke({});
+			// le délégué éphémère est clear() après invoke — les callbacks originaux restent
+			expect(event.count()).toBe(1);
+		});
+
+		it("Appelle les callbacks dans l'ordre d'enregistrement", () => {
+			const order: number[] = [];
+			const event = new JsCircularEvent();
+			event.add('a', r => {
+				order.push(1);
+				return r;
+			});
+			event.add('b', r => {
+				order.push(2);
+				return r;
+			});
+			event.invoke({});
+			expect(order).toEqual([1, 2]);
+		});
+	});
+
+	// ── call (deprecated) ──────────────────────────────────────
+	describe('call (deprecated)', () => {
+		it('Retourne null si aucun callback', () => {
+			const event = new JsCircularEvent<
+				(p: { count: number }) => { count: number }
+			>();
+			expect(event.call({ count: 0 })).toBeNull();
+		});
+
+		it('Retourne le record final', () => {
+			const event = new JsCircularEvent<
+				(p: { count: number }) => { count: number }
+			>();
+			event.add('inc', ({ count }) => ({ count: count + 1 }));
+			expect(event.call({ count: 0 })).toEqual({ count: 1 });
+		});
+
+		it('Lève une erreur si invoke retourne un type inattendu', () => {
+			const event = new JsCircularEvent();
+			vi.spyOn(event, 'invoke').mockReturnValue({
+				type: 'other',
+				value: null,
+				originalValue: 42,
+			} as any);
+			expect(() => event.call({} as any)).toThrow();
+		});
+
+		it("Le message d'erreur mentionne le type inattendu", () => {
+			const event = new JsCircularEvent();
+			vi.spyOn(event, 'invoke').mockReturnValue({
+				type: 'other',
+				value: null,
+				originalValue: 42,
+			} as any);
+			expect(() => event.call({} as any)).toThrow(/other/);
+		});
+	});
+
+	// ── événements d'observation ───────────────────────────────
+	describe("événements d'observation", () => {
+		it("onHandlerAdded se déclenche lors d'un add", () => {
+			const event = new JsCircularEvent();
+			const spy = vi.fn();
+			event.onHandlerAdded.push(spy);
+			event.add('key', r => r);
+			expect(spy).toHaveBeenCalledOnce();
+		});
+
+		it("onHandlerRemoved se déclenche lors d'un remove", () => {
+			const event = new JsCircularEvent();
+			const spy = vi.fn();
+			event.onHandlerRemoved.push(spy);
+			event.add('key', r => r);
+			event.remove('key');
+			expect(spy).toHaveBeenCalledOnce();
+		});
+
+		it("onHandlerCleared se déclenche lors d'un clear", () => {
+			const event = new JsCircularEvent();
+			const spy = vi.fn();
+			event.onHandlerCleared.push(spy);
+			event.add('key', r => r);
+			event.clear();
+			expect(spy).toHaveBeenCalledOnce();
 		});
 	});
 });

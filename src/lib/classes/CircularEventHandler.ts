@@ -245,9 +245,9 @@ export class CircularEventDelegate<
 	TRecord extends Record<string, unknown> = Record<string, unknown>,
 > extends CircularEventHandler<TRecord> {}
 
-/**
- * Alias de {@link CircularEventDelegate} conservé pour la compatibilité ascendante.
- *
- * @deprecated Utilisez {@link CircularEventDelegate} ou {@link CircularEventHandler} à la place.
- */
-export const JsCircularEvent = CircularEventDelegate;
+// /**
+//  * Alias de {@link CircularEventDelegate} conservé pour la compatibilité ascendante.
+//  *
+//  * @deprecated Utilisez {@link CircularEventDelegate} ou {@link CircularEventHandler} à la place.
+//  */
+// export const JsCircularEvent = CircularEventDelegate;
