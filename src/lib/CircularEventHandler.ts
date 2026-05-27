@@ -212,8 +212,8 @@ export class CircularEventHandler<
  * spécifiant que le type du record propagé entre les callbacks :
  *
  * ```ts
- * // Avec JsCircularEvent
- * const pipeline = new JsCircularEvent<{ count: number }>();
+ * // Avec CircularEventDelegate
+ * const pipeline = new CircularEventDelegate<{ count: number }>();
  *
  * // Équivalent avec CircularEventHandler
  * const pipeline = new CircularEventHandler<{ count: number }, (param: { count: number }) => Partial<{ count: number }>>();
@@ -225,7 +225,7 @@ export class CircularEventHandler<
  *
  * @example
  * ```ts
- * const pipeline = new JsCircularEvent<{ count: number; label: string }>();
+ * const pipeline = new CircularEventDelegate<{ count: number; label: string }>();
  *
  * pipeline.add('increment', (record) => ({ count: record.count + 1 }));
  * pipeline.add('label',     (record) => ({ label: `count=${record.count}` }));
@@ -235,8 +235,15 @@ export class CircularEventHandler<
  * ```
  *
  * @see {@link CircularEventHandler} pour l'API complète
- * @see {@link JsEvent} pour la variante standard
+ * @see {@link EventDelegate} pour la variante standard
  */
-export class JsCircularEvent<
+export class CircularEventDelegate<
 	TRecord extends Record<string, unknown> = Record<string, unknown>,
 > extends CircularEventHandler<TRecord> {}
+
+/**
+ * Alias de {@link CircularEventDelegate} conservé pour la compatibilité ascendante.
+ *
+ * @deprecated Utilisez {@link CircularEventDelegate} ou {@link CircularEventHandler} à la place.
+ */
+export const JsCircularEvent = CircularEventDelegate;

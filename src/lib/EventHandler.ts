@@ -179,8 +179,8 @@ export class EventHandler<
  * le type du callback, sans avoir à décomposer manuellement `TArgs` :
  *
  * ```ts
- * // Avec JsEvent — un seul générique
- * const onClick = new JsEvent<(e: MouseEvent) => void>();
+ * // Avec EventDelegate — un seul générique
+ * const onClick = new EventDelegate<(e: MouseEvent) => void>();
  *
  * // Équivalent avec EventHandler — verbeux
  * const onClick = new EventHandler<[MouseEvent], (e: MouseEvent) => void>();
@@ -194,7 +194,7 @@ export class EventHandler<
  * ```ts
  * type OnFrameCreatedCallback = (frame: FrameData) => void;
  *
- * const onFrameCreated = new JsEvent<OnFrameCreatedCallback>();
+ * const onFrameCreated = new EventDelegate<OnFrameCreatedCallback>();
  * onFrameCreated.add('handler', (frame) => console.log(frame));
  * onFrameCreated.invoke(frameData);
  * ```
@@ -202,7 +202,14 @@ export class EventHandler<
  * @see {@link EventHandler} pour l'API complète avec contrôle fin des génériques
  * @see {@link JsCircularEvent} pour la variante circulaire
  */
-export class JsEvent<T extends Func = Func> extends EventHandler<
+export class EventDelegate<T extends Func = Func> extends EventHandler<
 	Parameters<T>,
 	T
 > {}
+
+/**
+ * Alias de {@link EventDelegate} conservé pour la compatibilité ascendante.
+ *
+ * @deprecated Utilisez {@link EventDelegate} ou {@link EventHandler} à la place.
+ */
+export const JsEvent = EventDelegate;
