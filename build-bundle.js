@@ -7,6 +7,7 @@ const config = {
 	bundle: true,
 	platform: 'browser',
 	format: 'esm',
+	sourcemap: 'inline',
 };
 
 await Promise.all([
