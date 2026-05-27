@@ -4,3 +4,4 @@ dist
 coverage
 docs
 pnpm-workspace.yaml
+.npmrc
