@@ -205,8 +205,38 @@ export class CircularEventHandler<
 }
 
 /**
- * Alias de {@link CircularEventHandler} conservé pour la compatibilité ascendante.
+ * Raccourci ergonomique vers {@link CircularEventHandler} conservant
+ * la même signature qu'à l'origine.
  *
- * @deprecated Utilisez {@link CircularEventHandler} à la place.
+ * Permet d'instancier un gestionnaire d'événement circulaire en ne
+ * spécifiant que le type du record propagé entre les callbacks :
+ *
+ * ```ts
+ * // Avec JsCircularEvent
+ * const pipeline = new JsCircularEvent<{ count: number }>();
+ *
+ * // Équivalent avec CircularEventHandler
+ * const pipeline = new CircularEventHandler<{ count: number }, (param: { count: number }) => Partial<{ count: number }>>();
+ * ```
+ *
+ * @typeParam TRecord - Type du record propagé entre les callbacks.
+ *                      Doit étendre `Record<string, unknown>`.
+ *                      Par défaut `Record<string, unknown>`.
+ *
+ * @example
+ * ```ts
+ * const pipeline = new JsCircularEvent<{ count: number; label: string }>();
+ *
+ * pipeline.add('increment', (record) => ({ count: record.count + 1 }));
+ * pipeline.add('label',     (record) => ({ label: `count=${record.count}` }));
+ *
+ * const result = pipeline.invoke({ count: 0, label: '' });
+ * // result → { type: 'record', value: { count: 1, label: 'count=1' } }
+ * ```
+ *
+ * @see {@link CircularEventHandler} pour l'API complète
+ * @see {@link JsEvent} pour la variante standard
  */
-export const JsCircularEvent = CircularEventHandler;
+export class JsCircularEvent<
+	TRecord extends Record<string, unknown> = Record<string, unknown>,
+> extends CircularEventHandler<TRecord> {}

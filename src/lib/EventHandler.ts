@@ -173,8 +173,36 @@ export class EventHandler<
 }
 
 /**
- * Alias de {@link EventHandler} conservé pour la compatibilité ascendante.
+ * Raccourci ergonomique vers {@link EventHandler} avec un seul générique.
  *
- * @deprecated Utilisez {@link EventHandler} à la place.
+ * Permet d'instancier un gestionnaire d'événement en ne spécifiant que
+ * le type du callback, sans avoir à décomposer manuellement `TArgs` :
+ *
+ * ```ts
+ * // Avec JsEvent — un seul générique
+ * const onClick = new JsEvent<(e: MouseEvent) => void>();
+ *
+ * // Équivalent avec EventHandler — verbeux
+ * const onClick = new EventHandler<[MouseEvent], (e: MouseEvent) => void>();
+ * ```
+ *
+ * @typeParam T - Type du callback. `Parameters<T>` et `ReturnType<T>` sont
+ *               automatiquement extraits pour alimenter {@link EventHandler}.
+ *               Par défaut `Func`.
+ *
+ * @example
+ * ```ts
+ * type OnFrameCreatedCallback = (frame: FrameData) => void;
+ *
+ * const onFrameCreated = new JsEvent<OnFrameCreatedCallback>();
+ * onFrameCreated.add('handler', (frame) => console.log(frame));
+ * onFrameCreated.invoke(frameData);
+ * ```
+ *
+ * @see {@link EventHandler} pour l'API complète avec contrôle fin des génériques
+ * @see {@link JsCircularEvent} pour la variante circulaire
  */
-export const JsEvent = EventHandler;
+export class JsEvent<T extends Func = Func> extends EventHandler<
+	Parameters<T>,
+	T
+> {}
