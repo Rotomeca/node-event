@@ -8,15 +8,14 @@ import {
 	toUint,
 	uint,
 } from '@rotomeca/utils';
-import { IEventHandler } from '../interfaces/IEvent';
 import {
 	EventCallResult,
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../utils/types';
-import { IEventData } from '../interfaces/IEventData';
-import { EventData } from '../classes/EventData';
+} from '../utils';
+import { IEventData, IEventHandler } from '../interfaces';
+import { EventData } from '../classes';
 
 /**
  * Implémentation abstraite de {@link IEventHandler}.

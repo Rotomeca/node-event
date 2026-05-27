@@ -48,14 +48,15 @@
 		"@rotomeca/utils": "^7.0.3"
 	},
 	"devDependencies": {
+		"@vitest/coverage-v8": "^4.1.7",
 		"dts-bundle-generator": "^9.5.1",
 		"esbuild": "^0.28.0",
 		"eslint": "^10.4.0",
 		"prettier": "3.8.3",
 		"rimraf": "^6.1.3",
+		"typedoc": "^0.28.19",
 		"typescript": "^6.0.3",
-		"vitest": "^4.1.7",
-		"@vitest/coverage-v8": "^4.1.7"
+		"vitest": "^4.1.7"
 	},
 	"sideEffects": false
 }

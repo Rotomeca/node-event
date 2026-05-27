@@ -1,0 +1,15 @@
+{
+	"entryPoints": [
+		"src/lib/abstract/index.ts",
+		"src/lib/classes/index.ts",
+		"src/lib/interfaces/index.ts",
+		"src/lib/utils/index.ts",
+		"src/lib/documentation/external/rotomeca-utils.ts"
+	],
+	"out": "docs",
+	"tsconfig": "tsconfig.typedoc.json",
+	"readme": "README.md",
+	"name": "@rotomeca/event",
+	"includeVersion": true,
+	"excludePrivate": true
+}

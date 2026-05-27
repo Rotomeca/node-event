@@ -5,7 +5,6 @@
 		"moduleResolution": "node",
 		"ignoreDeprecations": "6.0",
 		"useDefineForClassFields": false,
-		"outDir": "./dist/esm"
-	},
-	"exclude": ["node_modules", "**/*.test.ts", "src/lib/documentation"]
+		"outDir": "./dist/esm" // Sortie séparée
+	}
 }

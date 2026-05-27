@@ -1,11 +1,10 @@
 import { Func, MayBe, uint } from '@rotomeca/utils';
-import { IEventData } from './IEventData';
 import {
 	EventCallResult,
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../utils/types';
+} from '../utils';
 
 /**
  * Représente un gestionnaire d'événement typé auquel on peut attacher,
