@@ -13,9 +13,10 @@ import {
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../utils';
-import { IEventData, IEventHandler } from '../interfaces';
-import { EventData } from '../classes';
+} from '../utils/types';
+import { IEventHandler } from '../interfaces/IEventHandler';
+import { IEventData } from '../interfaces/IEventData';
+import { EventData } from '../classes/EventData';
 
 /**
  * Implémentation abstraite de {@link IEventHandler}.

@@ -1,5 +1,5 @@
 import { Func } from '@rotomeca/utils';
-import { IEventData } from '../interfaces';
+import { IEventData } from '../interfaces/IEventData';
 
 /**
  * Implémentation concrète de {@link IEventData}.

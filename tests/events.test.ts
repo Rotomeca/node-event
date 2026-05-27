@@ -1,9 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import {
-	EventData,
-	EventHandler,
-	CircularEventHandler,
-} from '../src/lib/classes';
+import { EventData } from '../src/lib/classes/EventData';
+import { EventHandler } from '../src/lib/classes/EventHandler';
+import { CircularEventHandler } from '../src/lib/classes/CircularEventHandler';
 
 const fn = () => vi.fn() as unknown as () => void;
 
