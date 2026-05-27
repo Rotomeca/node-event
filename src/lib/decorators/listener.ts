@@ -6,7 +6,7 @@ import { CircularEventHandler } from '../classes/CircularEventHandler';
  * Clé Symbol utilisée pour stocker la Map de cache des listeners sur l'instance cible.
  * @internal
  */
-const listenerCacheKey = Symbol('listenerCache');
+const listenersCacheKey = Symbol('listenerCache');
 
 /**
  * Options internes passées à la fonction helper `_get`.
@@ -156,7 +156,7 @@ function _get<
 ): EventHandler<TArgs, TCallback> {
 	const { target: self, listenerCacheKey, circular, initializator } = options;
 
-	const cache = ((self as any)[listenerCacheKey] ??= new Map<
+	const cache = ((self as any)[listenersCacheKey] ??= new Map<
 		symbol,
 		EventHandler<TArgs, TCallback>
 	>());
