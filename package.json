@@ -1,6 +1,6 @@
 {
 	"name": "@rotomeca/event",
-	"version": "4.2.0",
+	"version": "4.2.1",
 	"description": "Add event system",
 	"type": "module",
 	"main": "./dist/cjs/index.js",
