@@ -206,10 +206,3 @@ export class EventDelegate<T extends Func = Func> extends EventHandler<
 	Parameters<T>,
 	T
 > {}
-
-// /**
-//  * Alias de {@link EventDelegate} conservé pour la compatibilité ascendante.
-//  *
-//  * @deprecated Utilisez {@link EventDelegate} ou {@link EventHandler} à la place.
-//  */
-// export const JsEvent = EventDelegate;
