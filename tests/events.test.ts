@@ -504,16 +504,16 @@ describe('CircularEventHandler', () => {
 		});
 
 		it('Retourne { type: "other" } si args_0 n\'est pas un plain object', () => {
-			const event = new CircularEventHandler();
+			const event = new CircularEventHandler(() => {});
 			event.add('key', fn() as any);
-			const result = event.invoke('not-a-record' as any, () => {});
+			const result = event.invoke('not-a-record' as any);
 			expect(result.type).toBe('other');
 		});
 
 		it('Préserve originalValue dans le type other', () => {
-			const event = new CircularEventHandler();
+			const event = new CircularEventHandler(() => {});
 			event.add('key', fn() as any);
-			const result = event.invoke(42 as any, () => {});
+			const result = event.invoke(42 as any);
 			if (result.type === 'other') expect(result.originalValue).toBe(42);
 		});
 
