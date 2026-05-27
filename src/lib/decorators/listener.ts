@@ -1,6 +1,6 @@
 import { Func, Nullable } from '@rotomeca/utils';
-import { EventHandler } from '../EventHandler';
-import { CircularEventHandler } from '../CircularEventHandler';
+import { EventHandler } from '../classes/EventHandler';
+import { CircularEventHandler } from '../classes/CircularEventHandler';
 
 /**
  * Clé Symbol utilisée pour stocker la Map de cache des listeners sur l'instance cible.

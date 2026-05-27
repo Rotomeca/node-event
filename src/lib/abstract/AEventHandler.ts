@@ -14,9 +14,9 @@ import {
 	HandlerAddedCallback,
 	HandlerClearedCallback,
 	HandlerRemovedCallback,
-} from '../../types';
+} from '../utils/types';
 import { IEventData } from '../interfaces/IEventData';
-import { EventData } from '../EventData';
+import { EventData } from '../classes/EventData';
 
 /**
  * Implémentation abstraite de {@link IEventHandler}.
@@ -167,7 +167,7 @@ export abstract class AEventHandler<
 	 * @param args - Arguments par défaut transmis au callback à chaque appel.
 	 * @returns La clé générée.
 	 */
-	push(event: T, ...args: Partial<TArgs>): string{
+	push(event: T, ...args: Partial<TArgs>): string {
 		const key = this.#_generateKey();
 		this.add(key, event, ...args);
 
@@ -182,13 +182,13 @@ export abstract class AEventHandler<
 	 * @returns L'instance courante pour permettre le chaînage.
 	 */
 	add(key: string, event: T, ...args: Partial<TArgs>): this {
-		this.#_callbacks.set(key, new EventData(event, ...(args as unknown as TArgs)));
+		this.#_callbacks.set(
+			key,
+			new EventData(event, ...(args as unknown as TArgs)),
+		);
 
 		if (isDefined(this.#_handlerAdded) && this.onHandlerAdded.haveEvents())
-			this.onHandlerAdded.invoke(
-				key,
-				event,
-			);
+			this.onHandlerAdded.invoke(key, event);
 
 		return this;
 	}

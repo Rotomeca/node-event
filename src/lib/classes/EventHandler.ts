@@ -4,9 +4,9 @@ import {
 	HandlerAddedCallback,
 	HandlerRemovedCallback,
 	HandlerClearedCallback,
-} from '../types';
-import { AEventHandler } from './abstract/AEventHandler';
-import { IEventHandler } from './interfaces/IEvent';
+} from '../utils/types';
+import { AEventHandler } from '../abstract/AEventHandler';
+import { IEventHandler } from '../interfaces/IEvent';
 
 /**
  * Implémentation concrète de {@link AEventHandler}.

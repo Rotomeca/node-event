@@ -5,14 +5,14 @@ import {
 	isPlainObject,
 	MayBe,
 } from '@rotomeca/utils';
-import { AEventHandler } from './abstract/AEventHandler';
+import { AEventHandler } from '../abstract/AEventHandler';
 import {
 	HandlerAddedCallback,
 	HandlerRemovedCallback,
 	HandlerClearedCallback,
 	CircularEventCallResult,
-} from '../types';
-import { IEventHandler } from './interfaces/IEvent';
+} from '../utils/types';
+import { IEventHandler } from '../interfaces/IEvent';
 import { EventHandler } from './EventHandler';
 
 /**
