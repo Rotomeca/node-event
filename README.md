@@ -45,7 +45,7 @@ Le package expose deux familles de gestionnaires d'événements et un décorateu
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `EventHandler` / `EventDelegate`                 | Chaque callback est appelé **indépendamment** — résultats séparés                          |
 | `CircularEventHandler` / `CircularEventDelegate` | Chaque callback **reçoit et enrichit** le résultat du précédent (pipeline)                 |
-| `@Listener`                                      | Décorateur d'accesseur automatique pour déclarer des événements comme propriétés de classe |
+| `@event` / `@circularEvent`                      | Décorateur d'accesseur automatique pour déclarer des événements comme propriétés de classe |
 
 ---
 
@@ -172,7 +172,7 @@ switch (result.type) {
 
 ---
 
-## `@Listener` — décorateur d'accesseur
+## `@event` — décorateur d'accesseur
 
 Déclare un `EventHandler` comme propriété gérée d'une classe. Garantit une instanciation unique (singleton par propriété), empêche l'écrasement accidentel via le setter et supporte le chargement lazy ou eager.
 
@@ -183,16 +183,16 @@ import { Listener, NoInitListener, EventHandler } from '@rotomeca/event';
 
 class Button {
 	// Lazy (par défaut) — instancié au premier accès
-	@Listener(evt => evt.add('default', () => console.log('clicked')))
+	@event(evt => evt.add('default', () => console.log('clicked')))
 	accessor onClick: EventHandler<[], () => void>;
 
 	// Eager — instancié à la construction de l'objet
-	@Listener(NoInitListener, { lazy: false })
+	@event(NoInitListener, { lazy: false })
 	accessor onDestroy: EventHandler<[], () => void>;
 
 	// Circulaire — instancie un CircularEventHandler
-	@Listener(NoInitListener, { circular: true })
-	accessor onTransform: EventHandler<[{ value: number }]>;
+	@circularEvent(NoInitListener, { circular: true })
+	accessor onTransform: CircularEventHandler<[{ value: number }]>;
 }
 
 const btn = new Button();
