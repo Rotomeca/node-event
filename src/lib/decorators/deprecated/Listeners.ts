@@ -87,15 +87,65 @@ type ListenerDefaultOptions = {
  * @deprecated Utilisez plutôt {@link event} ou {@link circularEvent}
  */
 export function Listener<TCallback extends Func, This = any>(
+	initializator: Nullable<CallbackInitializator<TCallback, This>>,
+	options: ListenerDefaultOptions & { circular: true },
+): (
+	_target: ClassAccessorDecoratorTarget<This, JsCircularEvent<TCallback>>,
+	context: ClassAccessorDecoratorContext<This, JsCircularEvent<TCallback>>,
+) => ClassAccessorDecoratorResult<This, JsCircularEvent<TCallback>>;
+/**
+ * Décorateur d'accesseur automatique pour gérer des instances de `JsEvent`.
+ *
+ * Ce décorateur transforme un accesseur (auto-accessor) en une propriété gérée,
+ * assurant une instanciation unique (Singleton par propriété) et une gestion du cache.
+ * Il empêche également l'écrasement accidentel de l'événement via le setter.
+ *
+ * @template TCallback Signature de la fonction callback de l'événement.
+ * @template This Type de l'instance de la classe parente.
+ *
+ * @param initializator - (Optionnel) Fonction exécutée une seule fois à la création de l'événement pour le configurer.
+ * @param options - (Optionnel) Configuration du comportement du listener (lazy loading, type d'événement).
+ *
+ * @returns Le décorateur d'accesseur de classe conforme à la norme ES Decorators (Stage 3).
+ *
+ * @throws {Error} Si une tentative d'assignation (setter) est effectuée sur la propriété décorée.
+ *
+ * @example
+ * ```ts
+ * class MyComponent {
+ * @Listener((evt, instance) => evt.attach(instance.handleAction), { lazy: true })
+ * accessor onAction: JsEvent<(val: string) => void>;
+ *
+ *  private handleAction(val: string) {
+ *    console.log(val);
+ *  }
+ * }
+ * ```
+ * @deprecated Utilisez plutôt {@link event} ou {@link circularEvent}
+ */
+export function Listener<TCallback extends Func, This = any>(
+	initializator?: Nullable<CallbackInitializator<TCallback, This>>,
+	options?: ListenerDefaultOptions & { circular?: false },
+): (
+	_target: ClassAccessorDecoratorTarget<This, JsEvent<TCallback>>,
+	context: ClassAccessorDecoratorContext<This, JsEvent<TCallback>>,
+) => ClassAccessorDecoratorResult<This, JsEvent<TCallback>>;
+export function Listener<TCallback extends Func, This = any>(
 	initializator?: Nullable<CallbackInitializator<TCallback, This>>,
 	options?: ListenerDefaultOptions,
-) {
+): any {
 	const { circular = false, lazy = true } = options ?? {};
 
 	return function (
-		_target: ClassAccessorDecoratorTarget<This, JsEvent<TCallback>>,
-		context: ClassAccessorDecoratorContext<This, JsEvent<TCallback>>,
-	): ClassAccessorDecoratorResult<This, JsEvent<TCallback>> {
+		_target: ClassAccessorDecoratorTarget<
+			This,
+			JsEvent<TCallback> | JsCircularEvent<TCallback>
+		>,
+		context: ClassAccessorDecoratorContext<
+			This,
+			JsEvent<TCallback> | JsCircularEvent<TCallback>
+		>,
+	) {
 		const methodName = String(context.name);
 		const listenerCacheKey = Symbol(`listener_${methodName}`);
 		const args = { listenerCacheKey, circular, initializator };
@@ -107,10 +157,10 @@ export function Listener<TCallback extends Func, This = any>(
 		}
 
 		return {
-			get(this: This): JsEvent<TCallback> {
+			get(this: This) {
 				return _get<This, TCallback>({ target: this, ...args });
 			},
-			set(_value) {
+			set(_value: unknown) {
 				throw new Error(
 					`Cannot set decorated accessor ${String(context.name)}. It is managed by the @Listener decorator.`,
 				);
