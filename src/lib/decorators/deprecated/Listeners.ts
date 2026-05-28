@@ -1,31 +1,26 @@
 import { Func, Nullable } from '@rotomeca/utils';
-import { EventHandler } from '../classes/EventHandler';
-import { CircularEventHandler } from '../classes/CircularEventHandler';
+import { JsEvent } from '../../classes/deprecated/JsEvent';
+import { JsCircularEvent } from '../../classes/deprecated/JsCircularEvent';
 
 /**
  * Clé Symbol utilisée pour stocker la Map de cache des listeners sur l'instance cible.
  * @internal
  */
-const listenersCacheKey = Symbol('listenerCache');
+const globalCacheKey = Symbol('deprecatedListenersCache');
 
 /**
  * Options internes passées à la fonction helper `_get`.
  * @template T Type de l'instance cible.
- * @template TArgs Tuple des types d'arguments du callback.
  * @template TCallback Type de la fonction de callback de l'événement.
  */
-type GetListenerOptions<
-	T,
-	TArgs extends any[] = any[],
-	TCallback extends Func<TArgs> = Func<TArgs>,
-> = {
+type GetListenerOptions<T, TCallback extends Func> = {
 	/** L'instance de la classe contenant l'accesseur décoré. */
 	target: T;
 	/** La clé unique identifiant la propriété de l'événement dans le cache. */
 	listenerCacheKey: symbol;
 	/** Fonction d'initialisation optionnelle exécutée à la création de l'événement. */
-	initializator?: Nullable<CallbackInitializer<TArgs, TCallback, T>>;
-	/** Si true, instancie un `CircularEventHandler`. */
+	initializator?: Nullable<CallbackInitializator<TCallback, T>>;
+	/** Si true, instancie un `JsCircularEvent`. */
 	circular?: boolean;
 };
 
@@ -33,22 +28,20 @@ type GetListenerOptions<
  * Définit la signature de la fonction d'initialisation d'un événement.
  * Permet de configurer l'événement (ex: ajouter des abonnés par défaut) lors de sa création.
  *
- * @template TArgs Tuple des types d'arguments du callback.
  * @template TCallback Signature de la fonction callback de l'événement.
  * @template This Type de l'instance de la classe parente.
  * @param event L'instance de l'événement nouvellement créée.
  * @param instance L'instance de la classe parente.
  */
-export type CallbackInitializer<
-	TArgs extends any[] = any[],
-	TCallback extends Func<TArgs> = Func<TArgs>,
-	This = any,
-> = (event: EventHandler<TArgs, TCallback>, instance: This) => void;
+type CallbackInitializator<TCallback extends Func, This> = (
+	event: JsEvent<TCallback> | JsCircularEvent<TCallback>,
+	instance: This,
+) => void;
 
 /**
  * Options de configuration pour le décorateur {@link Listener}.
  */
-export type ListenerOptions = {
+type ListenerDefaultOptions = {
 	/**
 	 * Si `true` (par défaut), l'événement n'est instancié que lors du premier accès (getter).
 	 * Si `false`, l'événement est instancié immédiatement lors de l'initialisation de la classe parente.
@@ -56,21 +49,20 @@ export type ListenerOptions = {
 	 */
 	lazy?: boolean;
 	/**
-	 * Si `true`, crée une instance de {@link CircularEventHandler} au lieu de {@link EventHandler}.
-	 * Utile pour les topologies d'événements où chaque callback reçoit le résultat du précédent.
+	 * Si `true`, crée une instance de {@link JsCircularEvent} au lieu de {@link JsEvent}.
+	 * Utile pour gérer les dépendances circulaires ou les topologies d'événements complexes.
 	 * @default false
 	 */
 	circular?: boolean;
 };
 
 /**
- * Décorateur d'accesseur automatique pour gérer des instances de {@link EventHandler}.
+ * Décorateur d'accesseur automatique pour gérer des instances de `JsEvent`.
  *
  * Ce décorateur transforme un accesseur (auto-accessor) en une propriété gérée,
  * assurant une instanciation unique (Singleton par propriété) et une gestion du cache.
  * Il empêche également l'écrasement accidentel de l'événement via le setter.
  *
- * @template TArgs Tuple des types d'arguments du callback.
  * @template TCallback Signature de la fonction callback de l'événement.
  * @template This Type de l'instance de la classe parente.
  *
@@ -84,47 +76,39 @@ export type ListenerOptions = {
  * @example
  * ```ts
  * class MyComponent {
- *   @Listener((evt, instance) => evt.add('handler', instance.handleAction))
- *   accessor onAction: EventHandler<[string], (val: string) => void>;
+ * @Listener((evt, instance) => evt.attach(instance.handleAction), { lazy: true })
+ * accessor onAction: JsEvent<(val: string) => void>;
  *
- *   private handleAction(val: string) {
- *     console.log(val);
- *   }
+ *  private handleAction(val: string) {
+ *    console.log(val);
+ *  }
  * }
  * ```
- *
- * @see {@link NoInitListener} pour omettre l'initialisation tout en passant des options
+ * @deprecated Utilisez plutôt {@link event} ou {@link circularEvent}
  */
-export function Listener<
-	TArgs extends any[] = any[],
-	TCallback extends Func<TArgs> = Func<TArgs>,
-	This = any,
->(
-	initializator?: Nullable<CallbackInitializer<TArgs, TCallback, This>>,
-	options?: ListenerOptions,
+export function Listener<TCallback extends Func, This = any>(
+	initializator?: Nullable<CallbackInitializator<TCallback, This>>,
+	options?: ListenerDefaultOptions,
 ) {
 	const { circular = false, lazy = true } = options ?? {};
 
 	return function (
-		_target: ClassAccessorDecoratorTarget<This, EventHandler<TArgs, TCallback>>,
-		context: ClassAccessorDecoratorContext<
-			This,
-			EventHandler<TArgs, TCallback>
-		>,
-	): ClassAccessorDecoratorResult<This, EventHandler<TArgs, TCallback>> {
+		_target: ClassAccessorDecoratorTarget<This, JsEvent<TCallback>>,
+		context: ClassAccessorDecoratorContext<This, JsEvent<TCallback>>,
+	): ClassAccessorDecoratorResult<This, JsEvent<TCallback>> {
 		const methodName = String(context.name);
 		const listenerCacheKey = Symbol(`listener_${methodName}`);
 		const args = { listenerCacheKey, circular, initializator };
 
 		if (!lazy) {
 			context.addInitializer(function (this: This) {
-				_get<This, TArgs, TCallback>({ target: this, ...args });
+				_get<This, TCallback>({ target: this, ...args });
 			});
 		}
 
 		return {
-			get(this: This): EventHandler<TArgs, TCallback> {
-				return _get<This, TArgs, TCallback>({ target: this, ...args });
+			get(this: This): JsEvent<TCallback> {
+				return _get<This, TCallback>({ target: this, ...args });
 			},
 			set(_value) {
 				throw new Error(
@@ -137,49 +121,33 @@ export function Listener<
 
 /**
  * Helper interne pour récupérer ou créer l'instance de l'événement.
- * Implémente le principe DRY pour le chargement immédiat (eager) et différé (lazy).
+ * Imémente le principe DRY pour le chargement immédiat (eager) et différé (lazy).
  *
  * @template T Type de l'instance cible.
- * @template TArgs Tuple des types d'arguments du callback.
  * @template TCallback Type du callback de l'événement.
  * @param options Objet contenant les paramètres de récupération/création.
  * @returns L'instance de l'événement stockée dans le cache.
- * @throws {Error} Si l'initializator a échoué.
+ * @throws {Error} Si l'initializator à échoué
  * @internal
  */
-function _get<
-	T,
-	TArgs extends any[] = any[],
-	TCallback extends Func<TArgs> = Func<TArgs>,
->(
-	options: GetListenerOptions<T, TArgs, TCallback>,
-): EventHandler<TArgs, TCallback> {
+function _get<T, TCallback extends Func>(
+	options: GetListenerOptions<T, TCallback>,
+): JsEvent<TCallback> {
 	const { target: self, listenerCacheKey, circular, initializator } = options;
 
-	const cache = ((self as any)[listenersCacheKey] ??= new Map<
-		symbol,
-		EventHandler<TArgs, TCallback>
+	const cache = ((self as any)[globalCacheKey] ??= new Map<
+		Symbol,
+		JsEvent<TCallback>
 	>());
-
 	if (!cache.has(listenerCacheKey)) {
 		const event = circular
-			? (new CircularEventHandler() as unknown as EventHandler<
-					TArgs,
-					TCallback
-				>)
-			: new EventHandler<TArgs, TCallback>();
+			? new JsCircularEvent<TCallback>()
+			: new JsEvent<TCallback>();
 
 		if (initializator && initializator.name !== NoInitListener.name) {
 			try {
 				initializator(event, self);
 			} catch (error) {
-				console.error(
-					'@Listener',
-					`Failed to initialize event for ${String(listenerCacheKey)}`,
-					error,
-					options,
-				);
-
 				throw error;
 			}
 		}
@@ -197,18 +165,16 @@ function _get<
  * lorsque vous n'avez aucune logique d'initialisation à fournir, mais que vous
  * devez passer un objet d'options en second argument.
  *
- * Cela améliore la lisibilité du code et l'intention par rapport à l'utilisation
- * de `null` ou `() => {}`.
+ * Cela améliore la lisibilité du code et l'intention par rapport à l'utilisation de `null` ou `() => {}`.
  *
  * @example
  * ```ts
  * class GraphNode {
- *   // On souhaite activer le mode 'circular', sans logique d'initialisation spécifique.
- *   @Listener(NoInitListener, { circular: true })
- *   accessor links: EventHandler<[LinkArgs], LinkCallback>;
+ * // On souhaite activer le mode 'circular', sans logique d'initialisation spécifique.
+ * @Listener(NoInitListener, { circular: true })
+ * accessor links: JsEvent<LinkCallback>;
  * }
  * ```
- *
- * @see {@link Listener}
+ * @deprecated Utilisez plutôt {@link NoInitEvent}
  */
 export function NoInitListener() {}

@@ -2,9 +2,11 @@
 	"entryPoints": [
 		"src/lib/documentation/abstract/index.ts",
 		"src/lib/documentation/classes/index.ts",
+		"src/lib/documentation/classes/deprecated/index.ts",
 		"src/lib/documentation/interfaces/index.ts",
 		"src/lib/documentation/utils/index.ts",
-		// "src/lib/decorators/index.ts",
+		"src/lib/documentation/decorators/index.ts",
+		"src/lib/documentation/decorators/deprecated/index.ts",
 		"src/lib/documentation/external/rotomeca-utils.ts"
 	],
 	"out": "docs",
