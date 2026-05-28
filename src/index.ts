@@ -7,4 +7,5 @@ export * from './lib/classes/EventHandler';
 export * from './lib/classes/deprecated/JsEvent';
 export * from './lib/classes/deprecated/JsCircularEvent';
 export * from './lib/classes/CircularEventHandler';
-// export * from './lib/decorators/listener';
+export * from './lib/decorators/event';
+export * from './lib/decorators/deprecated/Listeners';
